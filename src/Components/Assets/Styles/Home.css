@@ -1,0 +1,43 @@
+
+
+.home-main{
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+
+.para{
+    line-height: 76.8px;
+    font-weight: 500;
+    font-size:50px;
+}
+.para1,.para2{
+    color: #008080 ;
+}
+
+.para3{
+    color: #FFCC29;
+}
+
+.home-btn{
+    font-weight: 500;
+    color:white ;
+    padding:10px 20px;
+    background-color:#008080 ;
+    border-radius: 5px;
+    border: 1px solid #008080;
+}
+
+.home-category{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.home-category div{
+    padding: 5px 20px;
+    font-weight: 600;
+    color:#008080 ;
+    border-radius: 20px;
+    border: 1px solid #008080;
+}

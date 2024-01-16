@@ -1,0 +1,27 @@
+.jobs-main{
+    border: 2px solid #008080;
+    border-radius: 10px;
+    background-color: white;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 80%;
+    padding:0.5em 1em;
+    margin: 1em;
+}
+
+.job-title{
+    font-weight: 700;
+    font-size: large;
+}
+
+.my-application{
+    height: 60vh;
+    overflow: scroll;
+}
+
+.my-application::-webkit-scrollbar {
+    display: none;
+}
+
+
