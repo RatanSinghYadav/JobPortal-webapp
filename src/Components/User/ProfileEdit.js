@@ -3,7 +3,7 @@ import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import "../Assets/Styles/UserProfileEdit.css";
 
 const ProfileEdit = () => {
-  const [formData, setFormData] = useState({
+  const [userDetail, setUserDetail] = useState({
     fname: "",
     lname: "",
     email: "",
@@ -19,24 +19,24 @@ const ProfileEdit = () => {
     achievement: "",
     cgpaOrPercentage: "",
 
-    workType: "",
+    experienceType: "",
     company: "",
     jobDescription: "",
     designation: "",
     role: "",
-    workDurationStart: "",
-    workDurationEnd: "",
+    workExpStartDate: "",
+    workExpEndDate: "",
     currentCTC: "",
-    workAchievementDetails: "",
-    tools: [],
-    skills: [],
-    certification: "",
-    certifyDurationStart: "",
-    certifyDurationEnd: "",
+    achievements: "",
+    tools: "",
+    skills: "",
+    certificationName: "",
+    certificationStartDate: "",
+    certificationEndDate: "",
     currentLocation: "",
-    linkedInProfile: "",
-    githubProfile: "",
-    additionalInformation: "",
+    linkedInId: "",
+    gitHubId: "",
+    otherInformation: "",
     ownVehicle: "",
     ownLaptop: "",
     willingToRelocate: "",
@@ -47,43 +47,94 @@ const ProfileEdit = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setUserDetail({
+      ...userDetail,
       [name]: value,
     });
   };
 
   //  for geting media files
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState({
+    avatar: "",
+    video: ""
+  });
+
+  // console.log(file.avatar, file.video)
 
   const handleMediaFile = (e) => {
+    const { name } = e.target;
+    const selectedFile = e.target.files[0];
     setFile({
       ...file,
-      [e.target.name]: e.target.files[0],
+      [name]: selectedFile,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const videoFile = new FormData();
-    videoFile.append('video', file);
+    const {
+      fname, lname, email, phone,
+      educationMode, institution, degree, specialization, eduStartDate,
+      eduEndDate, eduAddMore, achievement, cgpaOrPercentage,
+      experienceType, company, jobDescription, designation, role,
+      workExpStartDate, workExpEndDate, currentCTC, achievements, tools, skills,
+      certificationName, certificationStartDate, certificationEndDate,
+      currentLocation, linkedInId, gitHubId, otherInformation,
+      ownVehicle, ownLaptop, willingToRelocate
+    } = userDetail;
+  
+    const formData = new FormData();
+    formData.append('avatar', file.avatar);
+    formData.append('video', file.video);
+    formData.append('fname', fname);
+    formData.append('lname', lname);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('educationMode', educationMode);
+    formData.append('institution', institution);
+    formData.append('degree', degree);
+    formData.append('specialization', specialization);
+    formData.append('eduStartDate', eduStartDate);
+    formData.append('eduEndDate', eduEndDate);
+    formData.append('eduAddMore', eduAddMore);
+    formData.append('achievement', achievement);
+    formData.append('cgpaOrPercentage', cgpaOrPercentage);
+  
+    formData.append('experienceType', experienceType);
+    formData.append('company', company);
+    formData.append('jobDescription', jobDescription);
+    formData.append('designation', designation);
+    formData.append('role', role);
+    formData.append('workExpStartDate', workExpStartDate);
+    formData.append('workExpEndDate', workExpEndDate);
+    formData.append('currentCTC', currentCTC);
+    formData.append('achievements', achievements);
+    formData.append('tools', tools);
+    formData.append('skills', skills);
+  
+    formData.append('certificationName', certificationName);
+    formData.append('certificationStartDate', certificationStartDate);
+    formData.append('certificationEndDate', certificationEndDate);
+  
+    formData.append('currentLocation', currentLocation);
+    formData.append('linkedInId', linkedInId);
+    formData.append('gitHubId', gitHubId);
+    formData.append('otherInformation', otherInformation);
+  
+    formData.append('ownVehicle', ownVehicle);
+    formData.append('ownLaptop', ownLaptop);
+    formData.append('willingToRelocate', willingToRelocate);
 
-    const { fname, lname, email, phone, educationMode, institution, degree, specialization, eduStartDate,
-      eduEndDate, achievement, cgpaOrPercentage, eduAddMore
-    } = formData;
+
     try {
-      const response = await fetch('http://localhost:8000/api/v1/user/profile', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:8000/api/v1/user/profile`, {
+        method: 'post',
         headers: {
-          "Content-Type": "multipart/form-data",
           'token': localStorage.getItem('token'),
+          // "Content-Type": "multipart/form-data",
         },
-        body: JSON.stringify({
-          fname, lname, email, phone, educationMode, institution, degree, specialization, eduStartDate,
-          eduEndDate, achievement, cgpaOrPercentage, eduAddMore,
-          videoFile
-        }),
+        body: formData
       });
 
       const data = await response.json();
@@ -108,7 +159,7 @@ const ProfileEdit = () => {
 
   return (
     <div className="app-container">
-    {/* <h1> Profile Edit</h1> */}
+      {/* <h1> Profile Edit</h1> */}
       <Container>
         <Form onSubmit={handleSubmit} className="profile-form">
           {/* {/ 1st Row /} */}
@@ -119,7 +170,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="fname"
-                  value={formData.fname}
+                  value={userDetail.fname}
                   onChange={handleChange}
 
                 />
@@ -131,7 +182,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="lname"
-                  value={formData.lname}
+                  value={userDetail.lname}
                   onChange={handleChange}
 
                 />
@@ -147,7 +198,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="email"
                   name="email"
-                  value={formData.email}
+                  value={userDetail.email}
                   onChange={handleChange}
 
                 />
@@ -159,7 +210,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="tel"
                   name="phone"
-                  value={formData.phone}
+                  value={userDetail.phone}
                   onChange={handleChange}
 
                 />
@@ -170,7 +221,7 @@ const ProfileEdit = () => {
           {/* {/ 3rd Row /} */}
           <Row>
             <Col>
-              <Form.Group controlId="avatar">
+              <Form.Group controlId="handleMediaFile">
                 <Form.Label>Profile Photo Upload</Form.Label>
                 <Form.Control
                   type="file"
@@ -190,7 +241,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="educationMode"
-                  value={formData.educationMode}
+                  value={userDetail.educationMode}
                   onChange={handleChange}
 
                 >
@@ -207,7 +258,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="institution"
-                  value={formData.institution}
+                  value={userDetail.institution}
                   onChange={handleChange}
 
                 >
@@ -228,7 +279,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="degree"
-                  value={formData.degree}
+                  value={userDetail.degree}
                   onChange={handleChange}
 
                 >
@@ -245,7 +296,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="specialization"
-                  value={formData.specialization}
+                  value={userDetail.specialization}
                   onChange={handleChange}
 
                 >
@@ -268,7 +319,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="date"
                   name="eduStartDate"
-                  value={formData.eduStartDate}
+                  value={userDetail.eduStartDate}
                   onChange={handleChange}
 
                 />
@@ -280,7 +331,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="date"
                   name="eduEndDate"
-                  value={formData.eduEndDate}
+                  value={userDetail.eduEndDate}
                   onChange={handleChange}
 
                 />
@@ -292,7 +343,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="cgpaOrPercentage"
-                  value={formData.cgpaOrPercentage}
+                  value={userDetail.cgpaOrPercentage}
                   onChange={handleChange}
 
                 />
@@ -308,7 +359,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="textarea"
                   name="achievement"
-                  value={formData.achievement}
+                  value={userDetail.achievement}
                   onChange={handleChange}
 
                 />
@@ -320,12 +371,12 @@ const ProfileEdit = () => {
           {/* {/ New Row - Work Details /} */}
           <Row>
             <Col>
-              <Form.Group controlId="workType">
+              <Form.Group controlId="experienceType">
                 <Form.Label>Work Type</Form.Label>
                 <Form.Control
                   as="select"
-                  name="workType"
-                  value={formData.workType}
+                  name="experienceType"
+                  value={userDetail.experienceType}
                   onChange={handleChange}
 
                 >
@@ -341,7 +392,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="company"
-                  value={formData.company}
+                  value={userDetail.company}
                   onChange={handleChange}
 
                 >
@@ -362,7 +413,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="jobDescription"
-                  value={formData.jobDescription}
+                  value={userDetail.jobDescription}
                   onChange={handleChange}
 
                 />
@@ -374,7 +425,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="designation"
-                  value={formData.designation}
+                  value={userDetail.designation}
                   onChange={handleChange}
 
                 >
@@ -395,7 +446,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="role"
-                  value={formData.role}
+                  value={userDetail.role}
                   onChange={handleChange}
 
                 >
@@ -407,24 +458,24 @@ const ProfileEdit = () => {
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group controlId="workDurationStart">
+              <Form.Group controlId="workExpStartDate">
                 <Form.Label>Start Date</Form.Label>
                 <Form.Control
                   type="date"
-                  name="workDurationStart"
-                  value={formData.workDurationStart}
+                  name="workExpStartDate"
+                  value={userDetail.workExpStartDate}
                   onChange={handleChange}
 
                 />
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group controlId="workDurationEnd">
+              <Form.Group controlId="workExpEndDate">
                 <Form.Label>End Date</Form.Label>
                 <Form.Control
                   type="date"
-                  name="workDurationEnd"
-                  value={formData.workDurationEnd}
+                  name="workExpEndDate"
+                  value={userDetail.workExpEndDate}
                   onChange={handleChange}
 
                 />
@@ -440,19 +491,19 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="currentCTC"
-                  value={formData.currentCTC}
+                  value={userDetail.currentCTC}
                   onChange={handleChange}
 
                 />
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group controlId="workAchievementDetails">
+              <Form.Group controlId="achievements">
                 <Form.Label>Achievement Details</Form.Label>
                 <Form.Control
                   as="textarea"
-                  name="workAchievementDetails"
-                  value={formData.workAchievementDetails}
+                  name="achievements"
+                  value={userDetail.achievements}
                   onChange={handleChange}
 
                 />
@@ -468,7 +519,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="tools"
-                  value={formData.tools}
+                  value={userDetail.tools}
                   onChange={handleChange}
 
                 />
@@ -480,7 +531,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="skills"
-                  value={formData.skills}
+                  value={userDetail.skills}
                   onChange={handleChange}
 
                 />
@@ -492,12 +543,12 @@ const ProfileEdit = () => {
 
           <Row>
             <Col>
-              <Form.Group controlId="certification">
+              <Form.Group controlId="certificationName">
                 <Form.Label>Certification</Form.Label>
                 <Form.Control
                   as="select"
-                  name="certification"
-                  value={formData.certification}
+                  name="certificationName"
+                  value={userDetail.certificationName}
                   onChange={handleChange}
 
                 >
@@ -509,24 +560,24 @@ const ProfileEdit = () => {
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group controlId="certifyDurationStart">
+              <Form.Group controlId="certificationStartDate">
                 <Form.Label>Start Date</Form.Label>
                 <Form.Control
                   type="date"
-                  name="certifyDurationStart"
-                  value={formData.certifyDurationStart}
+                  name="certificationStartDate"
+                  value={userDetail.certificationStartDate}
                   onChange={handleChange}
 
                 />
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group controlId="certifyDurationEnd">
+              <Form.Group controlId="certificationEndDate">
                 <Form.Label>End Date</Form.Label>
                 <Form.Control
                   type="date"
-                  name="certifyDurationEnd"
-                  value={formData.certifyDurationEnd}
+                  name="certificationEndDate"
+                  value={userDetail.certificationEndDate}
                   onChange={handleChange}
 
                 />
@@ -543,7 +594,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   type="text"
                   name="currentLocation"
-                  value={formData.currentLocation}
+                  value={userDetail.currentLocation}
                   onChange={handleChange}
 
                 />
@@ -555,7 +606,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="willingToRelocate"
-                  value={formData.willingToRelocate}
+                  value={userDetail.willingToRelocate}
                   onChange={handleChange}
 
                 >
@@ -575,7 +626,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="ownVehicle"
-                  value={formData.ownVehicle}
+                  value={userDetail.ownVehicle}
                   onChange={handleChange}
 
                 >
@@ -591,7 +642,7 @@ const ProfileEdit = () => {
                 <Form.Control
                   as="select"
                   name="ownLaptop"
-                  value={formData.ownLaptop}
+                  value={userDetail.ownLaptop}
                   onChange={handleChange}
 
                 >
@@ -606,23 +657,23 @@ const ProfileEdit = () => {
           {/* {/ New Row - Social Profiles /} */}
           <Row>
             <Col>
-              <Form.Group controlId="linkedInProfile">
+              <Form.Group controlId="linkedInId">
                 <Form.Label>LinkedIn Profile Link</Form.Label>
                 <Form.Control
                   type="text"
-                  name="linkedInProfile"
-                  value={formData.linkedInProfile}
+                  name="linkedInId"
+                  value={userDetail.linkedInId}
                   onChange={handleChange}
                 />
               </Form.Group>
             </Col>
             <Col>
-              <Form.Group controlId="githubProfile">
+              <Form.Group controlId="gitHubId">
                 <Form.Label>GitHub Profile Link</Form.Label>
                 <Form.Control
                   type="text"
-                  name="githubProfile"
-                  value={formData.githubProfile}
+                  name="gitHubId"
+                  value={userDetail.gitHubId}
                   onChange={handleChange}
                 />
               </Form.Group>
@@ -632,13 +683,13 @@ const ProfileEdit = () => {
           {/* {/ New Row - Additional Information /} */}
           <Row>
             <Col>
-              <Form.Group controlId="additionalInformation">
+              <Form.Group controlId="otherInformation">
                 <Form.Label>Additional Information</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
-                  name="additionalInformation"
-                  value={formData.additionalInformation}
+                  name="otherInformation"
+                  value={userDetail.otherInformation}
                   onChange={handleChange}
                 />
               </Form.Group>
@@ -651,6 +702,7 @@ const ProfileEdit = () => {
                 <Form.Label>Upload Resume or CV*</Form.Label>
                 <Form.Control
                   type="file"
+                  name="video"
                   onChange={handleMediaFile}
                 />
               </Form.Group>
