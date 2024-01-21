@@ -2,68 +2,119 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../Assets/Styles/UserProfile.css";
+import { url } from '../Utils/Constant.js';
 
 const Profile = () => {
-  // State to store person, education, work, certificate, and other details
-  const [profile, setProfile] = useState({
-    person: {},
-    education: {},
-    work: {},
-    certificate: {},
-    otherDetails: {},
-  });
+  const [profile, setProfile] = useState(null);
 
-  // Effect to fetch profile details from the backend
+  // console.log(profile)
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch(`${url}/api/v1/user/getUserDetails`, {
+        method: 'GET',
+        headers: {
+          'token': localStorage.getItem('token'),
+          'Content-Type': 'application/json',
+        },
+      });
+      const getResponse = await response.json();
+      console.log(getResponse);
+      setProfile(getResponse.user);
+      // console.log(response);
+    }
+    catch (e) {
+      console.log('error in verifying token:', e);
+    }
+  };
+
+  const [userImage, setUserImage] = useState(null);
+
+  const handleChange = (e) => {
+    setUserImage(e.target.files[0])
+  }
+
+  // console.log(userImage)
+
+  const uploadPhoto = async () => {
+    const formData = new FormData();
+    formData.append('avatar', userImage);
+
+    const res = await fetch(`http://localhost:8000/api/v1/user/userImageUpload`, {
+      method: "POST",
+      headers: {
+        token: localStorage.getItem('token'),
+        // "Content-Type": "multipart/form-data",
+
+      },
+      body: formData
+    })
+
+    const getResponse = await res.json();
+    console.log(getResponse);
+  }
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch("/api/profile");
-        const data = await response.json();
 
-        setProfile({
-          person: data.person || {},
-          education: data.education || {},
-          work: data.work || {},
-          certificate: data.certificate || {},
-          otherDetails: data.otherDetails || {},
-        });
-      } catch (error) {
-        console.error("Error fetching profile details:", error);
-      }
-    };
-
-    // Call the function to fetch profile details
     fetchProfile();
   }, []);
 
   return (
     <div className="profile-top-details">
       <div className="profile-details-image">
+
         <div className="profile-details">
-          {profile.person.image ? (
-            <img src={profile.person.image} alt="Person" />
-          ) : (
+
+          {profile && profile.avatar === null ? (
             <div className="person-image">
-              {profile.person.profilephoto}
               <i
                 className="bi bi-person-circle"
                 style={{ fontSize: "140px" }}
+
               ></i>
+              <label htmlFor="upload-button">
+                <button onClick={uploadPhoto}>upload</button>
+              </label>
+              <input
+                type="file"
+                id="upload-button"
+                style={{ cursor: 'pointer', }}
+                // display: 'none'
+                onChange={handleChange}
+                alt='image'
+              />
             </div>
+          ) : (
+            <div className="person-image">
+              {profile && profile.avatar && typeof profile.avatar === 'string' ? (
+                <img
+                  src={`http://localhost:8000/uploads/${profile.avatar}`}
+                  className='profileImg'
+                  alt="profile image"
+                />
+              ) : (
+                <span>No valid profile image</span>
+              )}
+            </div>
+
           )}
+
           <div className="person-info">
-            <h2>Username{profile.person.firstname}</h2>
+            <h2>{profile ? `${profile.fname} ${profile.lname === null ? "" : profile.lname}` : ""} </h2>
             <p className="person-info-desc">
-              user@gmail.com{profile.person.email}
+              {profile ? `${profile.email}` : ''}
             </p>
             <p className="person-info-desc">
-              +91 227788224{profile.person.phonenumber}
+              {profile ? `${profile.number}` : ''}
             </p>
             <p className="person-info-desc">
-              <i class="bi bi-geo-alt-fill"></i> Location
-              {profile.person.currentlocation}
+              <i className="bi bi-geo-alt-fill"></i>
+              {profile ? `${profile.currentLocation === null ? "Current Loaction" : profile.currentLocation}` : ""}
             </p>
           </div>
+
+
+
         </div>
 
         <Link to="editProfile">
@@ -74,40 +125,40 @@ const Profile = () => {
         {/* Education details section */}
         <div className="education-details  detailscard">
           <h3>Education Details</h3>
-          <p>ABC Institute of Technology:{profile.education.institute}</p>
+          <p>ABC Institute of Technology:  </p>
           <p className="input-taken">
-            Bachelor of Computer Science{profile.education.degree}
+            Bachelor of Computer Science
           </p>
           <p className="input-taken">
-            Specialization: {profile.education.specialization}
+            Specialization:
           </p>
           <p className="input-taken">
-            2020 - 2024 {profile.education.startDate}
+            2020 - 2024
           </p>
-          {/* <p>End Date: {profile.education.endDate}</p> */}
+          <p>End Date:</p>
           <p className="input-taken">
-            Achievement {profile.education.achievementDetails}
+            Achievement
           </p>
           <p className="input-taken">
-            CGPA or Percentage {profile.education.cgpaOrPercentage}
+            CGPA or Percentage
           </p>
           <div className="education-add1">
-            <p>ABC Institute of Technology:{profile.education.institute}</p>
+            <p>ABC Institute of Technology:  </p>
             <p className="input-taken">
-              Bachelor of Computer Science{profile.education.degree}
+              Bachelor of Computer Science
             </p>
             <p className="input-taken">
-              Specialization: {profile.education.specialization}
+              Specialization:
             </p>
             <p className="input-taken">
-              2020 - 2024 {profile.education.startDate}
+              2020 - 2024
             </p>
-            {/* <p>End Date: {profile.education.endDate}</p> */}
+            <p>End Date:</p>
             <p className="input-taken">
-              Achievement {profile.education.achievementDetails}
+              Achievement
             </p>
             <p className="input-taken">
-              CGPA or Percentage {profile.education.cgpaOrPercentage}
+              CGPA or Percentage
             </p>
           </div>
         </div>
@@ -115,55 +166,55 @@ const Profile = () => {
         {/* Work details section */}
         <div className="work-details detailscard">
           <h3>Work Details</h3>
-          <p>ABC Company: {profile.work.company}</p>
+          <p>ABC Company:   </p>
           <p className="input-taken">
-            Job Designation: {profile.work.designation}
+            Job Designation:
           </p>
-          <p className="input-taken">Role: {profile.work.role}</p>
+          <p className="input-taken">Role:   </p>
           <p className="input-taken">
-            2020-2022 {profile.work.workDurationStart}
+            2020-2022
           </p>
-          {/* <p>Work Duration End: {profile.work.workDurationEnd}</p> */}
-          <p className="input-taken">Rs 600000 {profile.work.currentCTC}</p>
-          {/* <p>Work Achievement Details: {profile.work.workAchievementDetails}</p> */}
+          <p>Work Duration End: </p>
+          <p className="input-taken">Rs 600000   </p>
+          <p>Work Achievement Details: </p>
           <p className="input-taken">
-            Tools: {profile.work.tools && profile.work.tools.join(", ")}
+            Tools:
           </p>
           <p className="input-taken">
-            Skills: {profile.work.skills && profile.work.skills.join(", ")}
+            Skills:
           </p>
           <div className="education-add1">
-            <p>ABC Company: {profile.work.company}</p>
+            <p>ABC Company:   </p>
             <p className="input-taken">
-              Job Designation: {profile.work.designation}
+              Job Designation:
             </p>
-            <p className="input-taken">Role: {profile.work.role}</p>
+            <p className="input-taken">Role:   </p>
             <p className="input-taken">
-              2020-2022 {profile.work.workDurationStart}
+              2020-2022
             </p>
-            {/* <p>Work Duration End: {profile.work.workDurationEnd}</p> */}
-            <p className="input-taken">Rs 600000 {profile.work.currentCTC}</p>
-            {/* <p>Work Achievement Details: {profile.work.workAchievementDetails}</p> */}
+            <p>Work Duration End: </p>
+            <p className="input-taken">Rs 600000  </p>
+            <p>Work Achievement Details: </p>
             <p className="input-taken">
-              Tools: {profile.work.tools && profile.work.tools.join(", ")}
+              Tools:
             </p>
             <p className="input-taken">
-              Skills: {profile.work.skills && profile.work.skills.join(", ")}
+              Skills:
             </p>
           </div>
         </div>
 
         <div className="certificate-details detailscard">
           <h3>Certificate Details</h3>
-          <p>Name of the Certification{profile.certificate.certification}</p>
+          <p>Name of the Certification  </p>
           <p className="input-taken">
-            Nov 28,2020{profile.certificate.certifyDurationStart}
+            Nov 28,2020
           </p>
-          {/* <p>Certify Duration End: {profile.certificate.certifyDurationEnd}</p> */}
+          <p>Certify Duration End: </p>
           <div className="education-add1">
-            <p>Name of the Certification{profile.certificate.certification}</p>
+            <p>Name of the Certification  </p>
             <p className="input-taken">
-              Nov 28,2020{profile.certificate.certifyDurationStart}
+              Nov 28,2020
             </p>
           </div>
         </div>
@@ -171,16 +222,16 @@ const Profile = () => {
         {/* Other details section */}
         <div className="other-details detailscard">
           <h3>Other Details</h3>
-          <p>Current Location: {profile.otherDetails.currentLocation}</p>
+          <p>Current Location:   </p>
           <p>
-            Willing to Relocate: Yes/No {profile.otherDetails.willingToRelocate}
+            Willing to Relocate: Yes/No
           </p>
-          <p>Own Vehicle: Yes/No {profile.otherDetails.ownVehicle}</p>
-          <p>Own Laptop: Yes/No {profile.otherDetails.ownLaptop}</p>
-          <p>LinkedIn Profile: url {profile.otherDetails.linkedInProfile}</p>
-          <p>GitHub Profile: url {profile.otherDetails.githubProfile}</p>
+          <p>Own Vehicle: Yes/No   </p>
+          <p>Own Laptop: Yes/No   </p>
+          <p>LinkedIn Profile: url  </p>
+          <p>GitHub Profile: url   </p>
           <p>
-            Other Information: url {profile.otherDetails.additionalInformation}
+            Other Information: url
           </p>
         </div>
       </div>

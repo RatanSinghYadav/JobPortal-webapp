@@ -59,6 +59,16 @@ p {
   font-size: 18px;
   font-weight: 400;
 }
+
+.profileImg{
+  height: 8rem;
+  border-radius: 50%;
+  display: flex;
+  margin: 0rem 0px 0rem 1rem;
+  border: 0px solid rgb(255, 255, 255);
+  z-index: 1;
+}
+
 @media only screen and (max-width: 760px) {
   .detailscard {
     width: 100%;

@@ -51,5 +51,15 @@
     padding:0em 1em;
 }
 
+.userLogo{
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    margin: 0rem 10px 0rem 0rem;
+    border: 0px solid rgb(255 255 255);
+    z-index: 1;
+  }
+
+
 
 

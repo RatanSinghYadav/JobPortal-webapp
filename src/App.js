@@ -10,6 +10,11 @@ import MyApplication from './Components/MyApplication';
 import Profile from "./Components/User/Profile.js";
 
 
+import HrLayout from "./Components/Layout/hrLayout.js";
+import HrLogin from "./Components/Hr/Hrlogin.js";
+import HrSignup from "./Components/Hr/Hrsignup.js";
+import JobPost from "./Components/Hr/Postjob.js";
+
 function App() {
   return (
     <>
@@ -36,6 +41,21 @@ function App() {
 
           <Route path="/myApplication" element={<Layout />}>
             <Route exact index element={<MyApplication />} />
+          </Route>
+
+
+          {/* HR Auth Routes   */}
+
+          <Route exact path="/hr/login" element={<HrLogin />}></Route>
+          <Route exact path="/hr/signup" element={<HrSignup />}></Route>
+
+
+          {/* HR other Routes */}
+          {/* <Route path="/hr/profile" element={<HrLayout />}>
+            <Route index exact element={<Hrprofile />} />
+          </Route> */}
+          <Route path="/hr/postjob" element={<HrLayout />}>
+            <Route index exact element={<JobPost />} />
           </Route>
 
         </Routes>

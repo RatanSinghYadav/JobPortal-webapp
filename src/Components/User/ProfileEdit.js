@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import "../Assets/Styles/UserProfileEdit.css";
+import { url } from '../Utils/Constant.js';
 
 const ProfileEdit = () => {
-  const [userDetail, setUserDetail] = useState({
+  const [userShortDetail, setUserShortDetail] = useState({
     fname: "",
     lname: "",
     email: "",
-    phone: "",
-    avatar: "",
+    number: "",
+    currentLocation: "",
+  })
+
+  const [userDetail, setUserDetail] = useState({
     educationMode: "",
     institution: "",
     degree: "",
@@ -18,7 +22,6 @@ const ProfileEdit = () => {
     eduAddMore: "",
     achievement: "",
     cgpaOrPercentage: "",
-
     experienceType: "",
     company: "",
     jobDescription: "",
@@ -33,7 +36,7 @@ const ProfileEdit = () => {
     certificationName: "",
     certificationStartDate: "",
     certificationEndDate: "",
-    currentLocation: "",
+    jobLocation: "",
     linkedInId: "",
     gitHubId: "",
     otherInformation: "",
@@ -41,6 +44,8 @@ const ProfileEdit = () => {
     ownLaptop: "",
     willingToRelocate: "",
   });
+
+  // console.log(userDetail)
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -51,6 +56,9 @@ const ProfileEdit = () => {
       ...userDetail,
       [name]: value,
     });
+    setUserShortDetail({
+      ...userShortDetail, [name]: value,
+    })
   };
 
   //  for geting media files
@@ -70,27 +78,54 @@ const ProfileEdit = () => {
     });
   };
 
+  const submitUserShortDetail = async (e) => {
+    e.preventDefault();
+    const { fname, lname, email, number, currentLocation, } = userShortDetail;
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/user/updateUserData`, {
+        method: 'PATCH',
+        headers: {
+          'token': localStorage.getItem('token'),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fname, lname, email, number, currentLocation
+        })
+      });
+
+      const data = await response.json();
+      console.log(data)
+      if (response.ok) {
+        setSuccess(true);
+        setError(null);
+        // Handle success, e.g., redirect or show a success message
+      } else {
+        setSuccess(false);
+        setError(data.message || 'Job post creation failed');
+      }
+    } catch (error) {
+      console.error('Error during job post creation:', error);
+      setSuccess(false);
+      setError('Job post creation failed');
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const {
-      fname, lname, email, phone,
       educationMode, institution, degree, specialization, eduStartDate,
       eduEndDate, eduAddMore, achievement, cgpaOrPercentage,
       experienceType, company, jobDescription, designation, role,
       workExpStartDate, workExpEndDate, currentCTC, achievements, tools, skills,
       certificationName, certificationStartDate, certificationEndDate,
-      currentLocation, linkedInId, gitHubId, otherInformation,
+      jobLocation, linkedInId, gitHubId, otherInformation,
       ownVehicle, ownLaptop, willingToRelocate
     } = userDetail;
-  
+
     const formData = new FormData();
-    formData.append('avatar', file.avatar);
     formData.append('video', file.video);
-    formData.append('fname', fname);
-    formData.append('lname', lname);
-    formData.append('email', email);
-    formData.append('phone', phone);
     formData.append('educationMode', educationMode);
     formData.append('institution', institution);
     formData.append('degree', degree);
@@ -100,7 +135,7 @@ const ProfileEdit = () => {
     formData.append('eduAddMore', eduAddMore);
     formData.append('achievement', achievement);
     formData.append('cgpaOrPercentage', cgpaOrPercentage);
-  
+
     formData.append('experienceType', experienceType);
     formData.append('company', company);
     formData.append('jobDescription', jobDescription);
@@ -112,24 +147,24 @@ const ProfileEdit = () => {
     formData.append('achievements', achievements);
     formData.append('tools', tools);
     formData.append('skills', skills);
-  
+
     formData.append('certificationName', certificationName);
     formData.append('certificationStartDate', certificationStartDate);
     formData.append('certificationEndDate', certificationEndDate);
-  
-    formData.append('currentLocation', currentLocation);
+
+    formData.append('jobLocation', jobLocation);
     formData.append('linkedInId', linkedInId);
     formData.append('gitHubId', gitHubId);
     formData.append('otherInformation', otherInformation);
-  
+
     formData.append('ownVehicle', ownVehicle);
     formData.append('ownLaptop', ownLaptop);
     formData.append('willingToRelocate', willingToRelocate);
 
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/user/profile`, {
-        method: 'post',
+      const response = await fetch(`http://localhost:8000/api/v1/user/profile/`, {
+        method: 'PATCH',
         headers: {
           'token': localStorage.getItem('token'),
           // "Content-Type": "multipart/form-data",
@@ -154,83 +189,114 @@ const ProfileEdit = () => {
     }
   };
 
+  // get user details
 
+  const fetchUserProfileAllDetails = async () => {
+    try {
+      const response = await fetch(`${url}/api/v1/user/getUserDetails`, {
+        method: 'GET',
+        headers: {
+          'token': localStorage.getItem('token'),
+          'Content-Type': 'application/json',
+        },
+      });
+      const getResponse = await response.json();
+      console.log(getResponse.user);
+      setUserShortDetail(getResponse.user)
+      setUserDetail(getResponse.user.userDetail);
+    }
+    catch (e) {
+      console.log('error in verifying token:', e);
+    }
+  };
+
+
+  useEffect(() => {
+
+    fetchUserProfileAllDetails();
+  }, []);
 
 
   return (
     <div className="app-container">
       {/* <h1> Profile Edit</h1> */}
+
+
       <Container>
-        <Form onSubmit={handleSubmit} className="profile-form">
-          {/* {/ 1st Row /} */}
-          <Row>
-            <Col>
-              <Form.Group controlId="fname">
+        <>
+          <Form className="profile-form-1">
+            <p className="form-heads">Profile Edit</p>
+
+            {/* {/ 1st Row /} */}
+            <Row>
+              <Col>
                 <Form.Label>First Name*</Form.Label>
                 <Form.Control
                   type="text"
                   name="fname"
-                  value={userDetail.fname}
+                  value={userShortDetail.fname}
                   onChange={handleChange}
 
                 />
-              </Form.Group>
-            </Col>
-            <Col>
-              <Form.Group controlId="lname">
+              </Col>
+              <Col>
                 <Form.Label>Last Name*</Form.Label>
                 <Form.Control
                   type="text"
                   name="lname"
-                  value={userDetail.lname}
+                  value={userShortDetail.lname}
                   onChange={handleChange}
 
                 />
-              </Form.Group>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
 
-          {/* {/ 2nd Row /} */}
-          <Row>
-            <Col>
-              <Form.Group controlId="email">
+            {/* {/ 2nd Row /} */}
+            <Row>
+              <Col>
                 <Form.Label>Email*</Form.Label>
                 <Form.Control
                   type="email"
                   name="email"
-                  value={userDetail.email}
+                  value={userShortDetail.email}
                   onChange={handleChange}
 
                 />
-              </Form.Group>
-            </Col>
-            <Col>
-              <Form.Group controlId="phone">
+              </Col>
+              <Col>
                 <Form.Label>Phone Number*</Form.Label>
                 <Form.Control
                   type="tel"
-                  name="phone"
-                  value={userDetail.phone}
+                  name="number"
+                  value={userShortDetail.number}
                   onChange={handleChange}
 
                 />
-              </Form.Group>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
 
-          {/* {/ 3rd Row /} */}
-          <Row>
-            <Col>
-              <Form.Group controlId="handleMediaFile">
-                <Form.Label>Profile Photo Upload</Form.Label>
+            {/* {/ 3rd Row /} */}
+            <Row>
+              <Col>
+                <Form.Label>Current Location*</Form.Label>
                 <Form.Control
-                  type="file"
-                  name="avatar"
-                  onChange={handleMediaFile}
+                  type="text"
+                  name="currentLocation"
+                  value={userShortDetail.currentLocation}
+                  onChange={handleChange}
+
                 />
-              </Form.Group>
-            </Col>
-          </Row>
+              </Col>
+              <Col className="userDetailUpdateBtn-1">
+                <button onClick={submitUserShortDetail} className="update-btn-1">
+                  update
+                </button>
+              </Col>
+            </Row>
+          </Form>
+        </>
+
+        <Form  className="profile-form-2">
 
           <p className="form-heads">Education Details</p>
 
@@ -589,12 +655,12 @@ const ProfileEdit = () => {
           {/* {/ New Row - Location and Relocation /} */}
           <Row>
             <Col>
-              <Form.Group controlId="currentLocation">
-                <Form.Label>Current Location*</Form.Label>
+              <Form.Group controlId="jobLocation">
+                <Form.Label>Job Location*</Form.Label>
                 <Form.Control
                   type="text"
-                  name="currentLocation"
-                  value={userDetail.currentLocation}
+                  name="jobLocation"
+                  value={userDetail.jobLocation}
                   onChange={handleChange}
 
                 />
@@ -712,7 +778,7 @@ const ProfileEdit = () => {
             <Row>
 
               <Col>
-                <Button type="submit" className="profile-link-button">
+                <Button className="profile-link-button">
                   Record Your Vedio Resume
                   <p className="record-button-desc">
                     (Please note that you can only record your Vedio Resume after
@@ -724,9 +790,7 @@ const ProfileEdit = () => {
           </div>
           <div className="div-update-btn">
             <Row>
-              <Button type="submit" className="update-btn">
-                Update
-              </Button>
+              <Button onClick={handleSubmit}  className="update-btn">Update</Button>
             </Row>
           </div>
         </Form>

@@ -8,7 +8,7 @@ import { url } from '../Utils/Constant.js';
 const Nav = () => {
   const navigate = useNavigate();
 
-  const[user, setUser] = useState();
+  // const[user, setUser] = useState();
 
   const checkToken = async () => {
     try {
@@ -20,14 +20,38 @@ const Nav = () => {
         },
       });
       const data = await response.json();
-      console.log(data);
-      setUser(data.data.fname);
+      // console.log(data.data.avatar.filename);
+      // setUser(data);
       // console.log(response);
     }
     catch (e) {
       console.log('error in verifying token:', e);
     }
   }
+
+
+  //  fetch user profile 
+
+  const [profile, setProfile] = useState('');
+
+  // console.log(profile)
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch(`${url}/api/v1/user/getUserData`, {
+        method: 'GET',
+        headers: {
+          'token': localStorage.getItem('token'),
+          'Content-Type': 'application/json',
+        },
+      });
+      const getResponse = await response.json();
+      // console.log(getResponse);
+      setProfile(getResponse.user);
+    }
+    catch (e) {
+      console.log('error in verifying token:', e);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,8 +62,9 @@ const Nav = () => {
       }
     };
 
+    fetchProfile();
     fetchData();
-  }, [navigate]);
+  }, []);
 
   const userLogout = () => {
     if (localStorage.getItem('token')) {
@@ -52,9 +77,18 @@ const Nav = () => {
     <div className="jobapp-nav">
       <img className="jobapp-logo" src={logo} alt="logo" />
       <div className="nav-right">
-        <AccountCircleIcon style={{ fontSize: "3em" }} />
+        {profile.avatar === null ?
+          <>
+            <AccountCircleIcon style={{ fontSize: "4em" }} />
+          </>
+          :
+
+          <img src={`http://localhost:8000/uploads/${profile.avatar === null ? "" : profile.avatar}`} className='userLogo' alt="Person" />
+
+
+        }
         <div className="job-candidate">
-          <div style={{ fontWeight: "500" }}>{user}</div>
+          <div style={{ fontWeight: "500" }}> {profile ? `${profile.fname} ${profile.lname === null ? "" : profile.lname}` : ""}</div>
           <button onClick={userLogout} className="job-btn">Logout</button>
         </div>
       </div>
